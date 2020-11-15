@@ -18,7 +18,11 @@ export default class ListWordsCommand extends BotCommand {
 		if(args.length >= 1) page = Number(args[0]);
 		else page = 1;
 
+		// Initial check to make sure the page is set.
 		if(!page || page <= 0) {
+			// If nobody is mentioned in the message they
+			// probably did something wrong when inputing a page.
+			// So just send an error message.
 			if(!message.mentions.users.first()) {
 				message.channel.send(this.invalidPage()).then(msg => {
 					setTimeout(() => {
@@ -28,24 +32,29 @@ export default class ListWordsCommand extends BotCommand {
 	
 				return;
 			} else { 
+				// If someone is mentioned set this variable
 				user = message.mentions.users.first();
+				// And if args.length >= 2 set the page again to be valid.
 				if(args.length >= 2) page = Number(args[1]);
+				else if(!page) page = 1;
 				else page = 1;
 			}
 		}	
 
 		const model = getModelForClass(Gamer, { existingConnection: db });
 
+		// Should only be set in the case of which .lw <@mention> is done.
 		let existingUser;
 		if(user) existingUser = await model.findOne({ user_id: user.id });
 		else existingUser = await model.findOne({ user_id: message.author.id });
-		
-		if(!page) page = 1;
 
 		if(existingUser) {
-
+			// Might? do something more here, for now just display the embed.
 			message.channel.send(this.listWordsEmbed(message.author, this.getPhrasesSaid(existingUser, page), page));
 
+		// If the user has not said any "epic gamer words" they shouldn't be registered in the
+		// MongoDB so this error message will be displayed, should make it a different message
+		// if someone mentions someone and they haven't said anything, Might come soon?
 		} else message.channel.send(this.noUserRegistered()).then(msg => {
 			setTimeout(() => {
 				if(msg.deletable) msg.delete();
