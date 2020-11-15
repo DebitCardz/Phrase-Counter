@@ -1,8 +1,10 @@
+// import { getModelForClass } from "@typegoose/typegoose";
 import { getModelForClass } from "@typegoose/typegoose";
-import { Message, MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, User } from "discord.js";
 import { Connection } from "mongoose";
 import BotCommand from "../../lib/command";
 import { Gamer } from "../../types/user";
+// import { Gamer } from "../../types/user";
 
 export default class ListWordsCommand extends BotCommand {
 	constructor() {
@@ -12,50 +14,86 @@ export default class ListWordsCommand extends BotCommand {
 	async execute(message: Message, args: string[], db: Connection) {
 
 		let page;
+		let user;
 		if(args.length >= 1) page = Number(args[0]);
 		else page = 1;
 
 		if(!page || page <= 0) {
-			message.channel.send(`Please enter a valid page number.`);
-			return;
-		}
-		
-		let model = getModelForClass(Gamer, { existingConnection: db });
+			if(!message.mentions.users.first()) {
+				message.channel.send(this.invalidPage()).then(msg => {
+					setTimeout(() => {
+						if(msg.deletable) msg.delete();
+					}, 5*1000); //5sec.
+				})
+	
+				return;
+			} else { 
+				user = message.mentions.users.first();
+				if(args.length >= 2) page = Number(args[1]);
+				else page = 1;
+			}
+		}	
 
-		let existingUser = await model.findOne({ user_id: message.author.id });
+		const model = getModelForClass(Gamer, { existingConnection: db });
+
+		let existingUser;
+		if(user) existingUser = await model.findOne({ user_id: user.id });
+		else existingUser = await model.findOne({ user_id: message.author.id });
+		
+		if(!page) page = 1;
+
 		if(existingUser) {
 
-			const phrases = existingUser.phrases;
-			let phrasesArr = [];
+			message.channel.send(this.listWordsEmbed(message.author, this.getPhrasesSaid(existingUser, page), page));
 
-			const maxEntriesPerPage = 6;
+		} else message.channel.send(this.noUserRegistered()).then(msg => {
+			setTimeout(() => {
+				if(msg.deletable) msg.delete();
+			}, 5*1000); //5sec.
+		})
+	}
 
-			let startIndex = maxEntriesPerPage * page;
-			let endIndex = startIndex - maxEntriesPerPage;
+	invalidPage() : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setDescription(`Invalid page! Please enter a valid number.`);
+		embed.setColor("RED");
+		return embed;
+	}
 
-			let i = 0;
-			for(let phrase in phrases) {
-				// great code.
-				if(phrasesArr.length == maxEntriesPerPage) break;
-				if(i >= endIndex && i <= startIndex) 
-					phrasesArr.push(phrase);
-				i++;				
-			}
+	noUserRegistered() : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setDescription(`You haven't said any "epic gamer words", try saying some to gain some cash!`);
+		embed.setColor("RED");
+		return embed;
+	}
 
-			const embed = new MessageEmbed();
-			embed.setAuthor(`Words List - Page: ${page}`, message.author.displayAvatarURL({ dynamic: true }));
-			
-			let str = "";
-			if(phrasesArr.length == 0) str += "This page is empty.";
-			else {
-				str += `${message.author} has said,\n\n`;
-				phrasesArr.forEach(phrase => { str += `\`${phrase}\` x**${phrases[phrase]}** times.\n`; });
-			}
-			embed.setDescription(str)
-			embed.setTimestamp();
+	getPhrasesSaid(gamer: Gamer, page: number) : string {
+		
+		const phrasesSaid = gamer.phrases;
+		const maxEntriesPerPage = 6;
 
-			message.channel.send(embed);
+		let str = "";
 
-		} else message.channel.send(`You aren't registered in the database, try saying some epic gamer words to display your stats!`);
+		const startIndex = maxEntriesPerPage * page;
+		const endIndex = startIndex - maxEntriesPerPage;
+
+		let i = 0;
+		for(let phrase in phrasesSaid) {
+			if(str.split("\n").length == maxEntriesPerPage) break;
+			if(i >= (endIndex - 1) && i <= (startIndex - 1)) 
+				str += `\`${phrase}\` x**${phrasesSaid[phrase]}** times.\n`;
+			i++;
+		}
+
+		return str != "" ? str : `Page ${page} is empty!`; 
+	}
+
+	listWordsEmbed(user: User, str: string, page: number) : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setAuthor(`Words list - Page: ${page}.`, user.displayAvatarURL({ dynamic: true }));
+		embed.setColor("GREEN");
+		embed.setDescription(str);
+		embed.setTimestamp();
+		return embed;
 	}
 }

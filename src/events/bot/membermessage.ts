@@ -7,6 +7,9 @@ const phrases = require('../../../phrases.json');
 export default class MemberMessage {	
 	constructor(client: Bot) {
 		client.on("message", async (message) => {
+			
+			if(message.author.bot) return;
+			
 			for(let obj of phrases) {
 				let phrase: string = obj.phrase.toLowerCase();
 				if(!message.content.toLowerCase().includes(phrase)) continue;

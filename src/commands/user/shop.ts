@@ -13,17 +13,21 @@ export default class ShopCommand extends BotCommand {
 		super("shop", "Shop command", { aliases: ["store"], devcommand: true });
 
 		this.shop = new Shop();
-
 		this.numsToEmoji = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '❌'];
-		console.log(this.numsToEmoji);
-		
 	}
 
 	async execute(message: Message, args: string[], db: Connection) {
-		this.displayShopEmbed(this.shop.getCatalogPage(1 - 1), message.author, 1, message);
+		this.displayShopEmbed(message.author, 1, message);
 	}
 
-	async displayShopEmbed(items: ShopItem[], user: User, page: number, message: Message) {
+	/**
+	 * Display the basic shop embed in chat.
+	 * @param user
+	 * @param page The catalog page that should be displayed.
+	 * @param message 
+	 */
+	async displayShopEmbed(user: User, page: number, message: Message) {
+		let items: ShopItem[] = this.shop.getCatalogPage(page-1)
 
 		const embed = new MessageEmbed();
 		embed.setAuthor(`Shop - Page: ${page}.`, user.displayAvatarURL({ dynamic: true }));
@@ -32,6 +36,7 @@ export default class ShopCommand extends BotCommand {
 		for(let item of items) {
 			i++;
 
+			// If the price is -1 that is an indicator that it is an invalid item and to display this.
 			if(!item.price || item.price == -1) {
 				embed.addField(`No items!`, `Page **${page}** doesn't have any items to display.`);
 				break;
@@ -41,6 +46,16 @@ export default class ShopCommand extends BotCommand {
 		}
 		embed.setTimestamp();
 
-		message.channel.send(embed);
+		message.channel.send(embed).then(async msg => {
+
+			// The only thing embed fields should be used for in this context is
+			// to display the items in the shop, possibly use description to display other information?
+			for(let i = 0; i < embed.fields.length; i++) 
+				// The only valid values are 0-4, to display the emojis.
+				// 5 is reserved for "X". 
+				if(i != 5 && this.numsToEmoji[i]) msg.react(this.numsToEmoji[i]);
+			msg.react(this.numsToEmoji[5]);
+
+		}).catch(err => { console.error(err); })
 	}
 }

@@ -26,18 +26,21 @@ export default class BalanceCommand extends BotCommand {
 
 		const existingUser = await model.findOne({ user_id: user.id });
 
-		if(existingUser) message.channel.send(balanceEmbed(user, existingUser.cash));
+		if(existingUser) message.channel.send(this.balanceEmbed(user, existingUser.cash));
 		else message.channel.send(`${user.username} (${user.id}) is not registered in the database.`);
 	}
-} 
 
-function balanceEmbed(user: User, balance: number) : MessageEmbed {
+	/**
+	 * Display a specific users balance in an embed.
+	 * @param user
+	 * @param balance 
+	 */
+	balanceEmbed(user: User, balance: number) : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setAuthor(`${user.username}'s cash.`, user.displayAvatarURL({ dynamic: true }));
+		embed.addField(`Cash:`, `${user} has \$${balance}.`);
+		embed.setTimestamp();
 	
-	const embed = new MessageEmbed();
-	embed.setAuthor(`${user.username}'s cash.`, user.displayAvatarURL({ dynamic: true }));
-	embed.addField(`Cash:`, `${user} has \$${balance}.`);
-	embed.setTimestamp();
-
-	return embed;
-
-}
+		return embed;
+	}
+} 
