@@ -1,0 +1,12 @@
+{
+	"prefix": ".",
+
+	"shop": {
+		"1": [
+			{ "name": "Gamers", "description": "unite", "price": 200 }
+		],
+		"2": [
+			{ "name": "epic", "description": "gamers", "price": 250 }
+		]
+	}
+}
