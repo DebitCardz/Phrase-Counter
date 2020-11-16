@@ -25,7 +25,7 @@ export class Bot extends Client {
 
 		this.initEvents(`../events`);
 
-		this.db = Mongoose.createConnection(`mongodb://localhost:27017/${process.env.DB_NAME}`, { useNewUrlParser: true });
+		this.db = Mongoose.createConnection(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, { useNewUrlParser: true });
 		setGlobalOptions({ options: { allowMixed: Severity.ALLOW } });
 		
 		this.resetCooldowns();
@@ -70,8 +70,7 @@ export class Bot extends Client {
 				this.commands.get(commandName) || this.commands.find((cmd) => cmd.aliases.includes(commandName));
 			
 			try {
-				// efficnet 
-				if(command?.devcommand) if(message.author.id != "307336287407439872") return;
+				if(command?.devcommand && !config.developers.includes(message.author.id)) return;
 
 				command?.execute(message, args, this.db);
 
