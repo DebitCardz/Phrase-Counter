@@ -6,10 +6,12 @@ import { Gamer } from "../../types/user";
 
 export default class SetCash extends BotCommand {
 	constructor() {
-		super("setcash", "Admin command used to set a user's cash.", { devcommand: true });
+		super("setcash", "Admin command used to set a user's cash.");
 	}
 
 	async execute(message: Message, args: string[], db: Connection) : Promise<void> {
+
+		if(!message.member?.hasPermission(["ADMINISTRATOR"])) return;
 
 		if(args.length < 2) {
 			message.channel.send(this.invalidParameters()).then(msg => {
