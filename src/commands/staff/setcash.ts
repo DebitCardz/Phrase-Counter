@@ -12,15 +12,19 @@ export default class SetCash extends BotCommand {
 	async execute(message: Message, args: string[], db: Connection) : Promise<void> {
 
 		if(args.length < 2) {
-			message.channel.send(`Usage: .setcash <user> <amount>.`);
+			message.channel.send(this.invalidParameters()).then(msg => {
+				setTimeout(() => { if(msg.deletable) msg.delete(); }, 5*1000); //5sec.
+			});
 			return;
 		}
 
 		const user = message.mentions.users.first();
 		const cash: number = Number(args[1]);
 
-		if(user == null || cash == NaN) {
-			message.channel.send(`Invalid parameters set.`);
+		if(user == null || !cash) {
+			message.channel.send(this.invalidParameters()).then(msg => {
+				setTimeout(() => { if(msg.deletable) msg.delete(); }, 5*1000); //5sec.
+			});
 			return;
 		}
 
@@ -34,6 +38,13 @@ export default class SetCash extends BotCommand {
 
 		} else message.channel.send(`${user.username} (${user.id}) is not registered in the database.`);
 
+	}
+
+	invalidParameters() : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setDescription(`Invalid Parameters! Use .setcash <user> <amount>.`);
+		embed.setColor("RED");
+		return embed;
 	}
 
 	updatedCashEmbed(user: User, cash: number) : MessageEmbed {

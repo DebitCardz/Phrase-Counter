@@ -5,9 +5,11 @@ export type Dictonary <T> = {
 	[key: string]: T
 }
 
-type Cooldown <T> = {
-	[key: string]: T
-}
+// Removed because this was moved to a variable instead of 
+// being stored in the database.
+// type Cooldown <T> = {
+	// [key: string]: T
+// }
 
 export class Gamer {
 	@Prop()
@@ -21,7 +23,4 @@ export class Gamer {
 
 	@Prop()
 	phrases!: Dictonary<number>;
-
-	@Prop()
-	cooldown!: Cooldown<number>;
 }

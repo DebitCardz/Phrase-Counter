@@ -20,7 +20,11 @@ export default class BalanceCommand extends BotCommand {
 		else user = message.author;
 
 		if(!user) {
-			message.channel.send(`Sorry! ${args[0]} isn't a valid user.`);
+			message.channel.send(this.noUserByThatMention()).then(msg => {
+				setTimeout(() => {
+					if(msg.deletable) msg.delete();
+				}, 5*1000); //5sec.
+			})
 			return;
 		}
 
@@ -28,6 +32,13 @@ export default class BalanceCommand extends BotCommand {
 
 		if(existingUser) message.channel.send(this.balanceEmbed(user, existingUser.cash));
 		else message.channel.send(this.balanceEmbed(user, 0));
+	}
+
+	noUserByThatMention() : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setDescription(`Sorry! There no user by that name.`);
+		embed.setColor("RED");
+		return embed;
 	}
 
 	/**

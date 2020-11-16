@@ -1,45 +1,101 @@
 import { getModelForClass } from "@typegoose/typegoose";
+import { Collection, User } from "discord.js";
 import { Bot } from "../../lib/bot";
 import { Gamer } from "../../types/user";
 
 const phrases = require('../../../phrases.json');
 
+/*
+Moved the cooldown system out of the database to save time from
+calling the database everytime, not to mention how whenever the bot restarts 
+we wipe the database of all cooldowns, This just seems more efficient.
+*/
+
 export default class MemberMessage {	
+	
+	private client: Bot;
+	public cooldown: Collection<string, string[]>;
+
 	constructor(client: Bot) {
-		client.on("message", async (message) => {
-			
-			if(message.author.bot) return;
-			
-			for(let obj of phrases) {
-				let phrase: string = obj.phrase.toLowerCase();
-				if(!message.content.toLowerCase().includes(phrase)) continue;
-			
-				const rnum = Number(Math.max(Math.random() * (1.2 - 0.8) + 0.8).toFixed(2));
-				let money: number = Math.ceil(obj.money * rnum);
+		this.client = client;
+		this.cooldown = new Collection();
 
-				const cooldown: number = obj.cooldown;
-
-				const model = getModelForClass(Gamer, {existingConnection: client.db});
-
-				const existingUser = await model.findOne({ user_id: message.author.id });
-
-				if(existingUser) {
-
-					if(existingUser.cooldown[phrase] != null) {
-						const diff = Math.floor((Date.now() - existingUser.cooldown[phrase]) / 1000)
-						if(diff <= cooldown) return;
-					} 
-
-					await model.updateOne({ user_id: message.author.id }, { cash: existingUser.cash += money });
-				
-					if(existingUser.phrases[phrase] == null) await model.update({ user_id: message.author.id }, { phrases: { ...existingUser.phrases, [phrase]: 1 } });
-					else await model.updateOne({ user_id: message.author.id }, { phrases: { ...existingUser.phrases, [phrase]: existingUser.phrases[phrase] + 1 } });
-
-					await model.updateOne({ user_id: message.author.id }, { cooldown: { ...existingUser.cooldown, [phrase]: Date.now() } });
-					
-				} else await model.create({ user_id: message.author.id, cash: money, inventory: [], phrases: { [phrase]: 1 }, cooldown: { [phrase]: Date.now() } });
-			}
-		})
+		this.initListener();
 	}
 
+	/**
+	 * INIT!!!!
+	 */
+	private initListener() {
+		this.client.on("message", async (message) => {
+			if(message.author.bot) return;
+
+			for(let phrase of phrases) {
+				if(!message.content.toLowerCase().includes(phrase.phrase)) continue;
+				if(this.cooldown.get(message.author.id)?.includes(phrase.phrase)) break;
+
+				// Cooldown logic.
+				const cooldown: number = phrase.cooldown;
+				if(cooldown) {
+					// Checks if the user has a cooldown array set.
+					if(this.cooldown.get(message.author.id)) {
+						// Gets the list of everything the user is currently on cooldown for.
+						let phrasesSaid = this.cooldown.get(message.author.id);
+						if(phrasesSaid?.includes(phrase.phrase)) return;
+						
+						// Pushes the new thing the user has said to the array. 
+						phrasesSaid?.push(phrase.phrase);
+						if(phrasesSaid) this.cooldown.set(message.author.id, phrasesSaid);
+
+						this.startCooldownResetTimer(message.author, phrase.phrase, phrase.cooldown)
+					} else { 
+						// Creates a new array when the user says a "gamer word" for the first time.
+						this.cooldown.set(message.author.id, [`${phrase.phrase}`]);
+						this.startCooldownResetTimer(message.author, phrase.phrase, phrase.cooldown)
+					}
+				}
+
+				const money = this.calculateCashEarned(phrase.money);
+
+				const model = getModelForClass(Gamer, { existingConnection: this.client.db });
+
+				const existingUser = await model.findOne({ user_id: message.author.id });
+				if(existingUser) {
+
+					// If the gamer word has never been said before it'll return undefined
+					// if that's the case make this variable 0 so down below when we update the database
+					// it just does 0 + 1, which is 1.
+					const curTimesPhraseSaid = existingUser.phrases[phrase.phrase] ? existingUser.phrases[phrase.phrase] : 0; 
+					await model.updateOne({ user_id: message.author.id }, { 
+						cash: existingUser.cash += money, 
+						phrases: { ...existingUser.phrases, [phrase.phrase]: curTimesPhraseSaid + 1 }
+					});
+
+				} else await model.create({ user_id: message.author.id, cash: money, phrases: { [phrase.phrase]: 1 }, inventory: [] });
+			}		
+		});
+	}
+
+	/**
+	 * Calculate the amount of cash the money should earn from saying a gamer word.
+	 * @param money Money gained before random multiper.
+	 * @returns The amount of money the user has gained.
+	 */
+	public calculateCashEarned(money: number) : number {
+		const randomNumber: number = Number(Math.max(Math.random() * (1.2 - 0.8) + 0.8));
+		return Math.ceil(money * randomNumber);
+	}
+
+	/**
+	 * Starts the timer to remove the gamer word from the cooldown list.
+	 * @param user 
+	 * @param phrase The phrase the user said.
+	 * @param cooldown Cooldown until the phrase is removed, in seconds.
+	 */
+	private startCooldownResetTimer(user: User, phrase: string, cooldown: number) {
+		setTimeout(() => {
+			let phraseArr = this.cooldown.get(user.id)?.filter(item => item !== phrase);
+			if(phraseArr) this.cooldown.set(user.id, phraseArr);
+		}, cooldown*1000);
+	}
 }
