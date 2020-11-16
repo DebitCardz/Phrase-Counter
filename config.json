@@ -3,16 +3,7 @@
 
 	"shop": {
 		"1": [
-			{ "name": "Gamers", "description": "unite", "price": 200 },
-			{ "name": "are cool", "description": "yep", "price": 100 }, 
-			{ "name": "WOOOOOOOO", "description": "something", "price": 500 },
-			{ "name": "vs", "description": "code", "price": 600 },
-			{ "name": "epic gamer", "description": "word", "price": 69 },
-			{ "name": "limiter", "description": "test", "price": 200 },
-			{ "name": "MORE", "description": "LIMITINg!!!", "price": 5000 }
-		],
-		"2": [
-			{ "name": "epic", "description": "gamers", "price": 250 }
+			{ "name": "Some Item", "description": "This is the description of this item, it should probably work.", "price": 5000 }
 		]
 	}
 }
