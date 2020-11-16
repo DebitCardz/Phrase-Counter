@@ -4,7 +4,6 @@ import { Message, MessageEmbed, User } from "discord.js";
 import { Connection } from "mongoose";
 import BotCommand from "../../lib/command";
 import { Gamer } from "../../types/user";
-// import { Gamer } from "../../types/user";
 
 export default class ListWordsCommand extends BotCommand {
 	constructor() {
@@ -52,10 +51,7 @@ export default class ListWordsCommand extends BotCommand {
 			// Might? do something more here, for now just display the embed.
 			message.channel.send(this.listWordsEmbed(message.author, this.getPhrasesSaid(existingUser, page), page));
 
-		// If the user has not said any "epic gamer words" they shouldn't be registered in the
-		// MongoDB so this error message will be displayed, should make it a different message
-		// if someone mentions someone and they haven't said anything, Might come soon?
-		} else message.channel.send(this.noUserRegistered()).then(msg => {
+		} else message.channel.send(this.noUserRegistered(user)).then(msg => {
 			setTimeout(() => {
 				if(msg.deletable) msg.delete();
 			}, 5*1000); //5sec.
@@ -69,9 +65,10 @@ export default class ListWordsCommand extends BotCommand {
 		return embed;
 	}
 
-	noUserRegistered() : MessageEmbed {
+	noUserRegistered(user?: User) : MessageEmbed {
 		const embed = new MessageEmbed();
-		embed.setDescription(`You haven't said any "epic gamer words", try saying some to gain some cash!`);
+		if(!user) embed.setDescription(`You haven't said any "epic gamer words", try saying some to gain some cash!`);
+		else embed.setDescription(`${user} hasn't said any "epic gamer words" yet.`);
 		embed.setColor("RED");
 		return embed;
 	}
@@ -88,9 +85,9 @@ export default class ListWordsCommand extends BotCommand {
 
 		let i = 0;
 		for(let phrase in phrasesSaid) {
-			if(str.split("\n").length == maxEntriesPerPage) break;
+			if(str.split("\n").length === maxEntriesPerPage) break;
 			if(i >= (endIndex - 1) && i <= (startIndex - 1)) 
-				str += `\`${phrase}\` x**${phrasesSaid[phrase]}** times.\n`;
+				str += `\`${phrase}\` x**${phrasesSaid[phrase]}** ${phrasesSaid[phrase] !== 1 ? "times" : "time"}.\n`;
 			i++;
 		}
 

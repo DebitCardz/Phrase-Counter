@@ -1,5 +1,5 @@
 import { getModelForClass } from "@typegoose/typegoose";
-import { Message } from "discord.js";
+import { Message, MessageEmbed, User } from "discord.js";
 import { Connection } from "mongoose";
 import BotCommand from "../../lib/command";
 import { Gamer } from "../../types/user";
@@ -30,9 +30,16 @@ export default class SetCash extends BotCommand {
 		if(existingUser) {
 
 			await model.updateOne({ user_id: user.id }, { cash: cash });
-			message.channel.send(`Updated ${user.username}'s (${user.id}) cash to **\$${cash}**.`);
+			message.channel.send(this.updatedCashEmbed(user, cash));
 
 		} else message.channel.send(`${user.username} (${user.id}) is not registered in the database.`);
 
+	}
+
+	updatedCashEmbed(user: User, cash: number) : MessageEmbed {
+		const embed = new MessageEmbed();
+		embed.setDescription(`Updated ${user} cash to ${cash}.`);
+		embed.setColor("GREEN");
+		return embed;
 	}
 }

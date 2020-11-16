@@ -27,7 +27,7 @@ export default class BalanceCommand extends BotCommand {
 		const existingUser = await model.findOne({ user_id: user.id });
 
 		if(existingUser) message.channel.send(this.balanceEmbed(user, existingUser.cash));
-		else message.channel.send(`${user.username} (${user.id}) is not registered in the database.`);
+		else message.channel.send(this.balanceEmbed(user, 0));
 	}
 
 	/**
