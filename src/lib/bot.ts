@@ -5,6 +5,8 @@ import Mongoose from "mongoose";
 import { Gamer } from "../types/user";
 import BotCommand from "./command";
 
+const config = require('../../config.json');
+
 export class Bot extends Client {
 
 	private commands: Collection<string, BotCommand>;
@@ -16,15 +18,14 @@ export class Bot extends Client {
 		super(options || {});
 		
 		this.commands = new Collection();
-		// TODO: Make this a config variable or something.
-		this.prefix = ".";
+		this.prefix = config.prefix;
 
 		this.initCommands(`../commands`);
 		this.initCommandHandler();
 
 		this.initEvents(`../events`);
 
-		this.db = Mongoose.createConnection("mongodb://localhost:27017/nwordbot", { useNewUrlParser: true });
+		this.db = Mongoose.createConnection(`mongodb://localhost:27017/${process.env.DB_NAME}`, { useNewUrlParser: true });
 		setGlobalOptions({ options: { allowMixed: Severity.ALLOW } });
 		
 		this.resetCooldowns();
