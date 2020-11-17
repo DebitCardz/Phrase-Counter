@@ -3,7 +3,7 @@ import { Bot } from "./lib/bot";
 
 dotenv.config();
 
-const bot = new Bot(); 
+export const bot = new Bot(); 
 
 bot.once('ready', () => {
 	bot.user?.setActivity(`Tech develop this garbage`, { type: "WATCHING" });
