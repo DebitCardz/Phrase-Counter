@@ -1,8 +1,12 @@
 {
 	"prefix": ".",
-
 	"developers": ["307336287407439872"],
-
+	"bot": {
+		"status": {
+			"activity": "Watching Tech develop this garbage.",
+			"type": "WATCHING"
+		}
+	},
 	"shop": {
 		"1": [
 			{ "name": "Some Item", "description": "This is the description of this item, it should probably work.", "price": 5000 }

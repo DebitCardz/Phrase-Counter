@@ -1,15 +1,15 @@
 import dotenv from "dotenv";
 import { Bot } from "./lib/bot";
+const config = require('../config.json');
 
 dotenv.config();
 
-export const bot = new Bot(); 
+export const bot: Bot = new Bot();
 
 bot.once('ready', () => {
-	bot.user?.setActivity(`Tech develop this garbage`, { type: "WATCHING" });
+	bot.user?.setActivity(config.bot.status.activity, { type: config.bot.status.type.toUpperCase() });
 
-	console.log(`Unfortunately logged into ${bot.user?.username}!`);
-})
+	console.log(`Logged into ${bot.user?.username}.`);
+});
 
-// this was a fucking mistake.
 bot.login(process.env.TOKEN);
