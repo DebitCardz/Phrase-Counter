@@ -14,7 +14,12 @@ export default abstract class BotCommand {
 		this.options = options;
 	}
 
-	// Executor.
+	/**
+	 * 
+	 * @param message 
+	 * @param args 
+	 * @param db 
+	 */
 	abstract async execute(message: Message, args: string[], db?: Connection) : Promise<void>;
 
 	get name() : string {
@@ -23,6 +28,10 @@ export default abstract class BotCommand {
 
 	get description() : string {
 		return this._description;
+	}
+
+	get category() : string {
+		return this.options?.category || "None";
 	}
 
 	get aliases() : string[] {
