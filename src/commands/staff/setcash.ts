@@ -4,7 +4,7 @@ import { Connection } from "mongoose";
 import BotCommand from "../../lib/command";
 import { Gamer } from "../../types/user";
 
-export default class SetCash extends BotCommand {
+export default class SetCashCommand extends BotCommand {
 	constructor() {
 		super("setcash", "Admin command used to set a user's cash.");
 	}
