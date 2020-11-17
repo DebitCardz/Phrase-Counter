@@ -9,6 +9,9 @@ export default class HelpCommand extends BotCommand {
 	}
 
 	async execute(message: Message, args: string[]) {
-		message.channel.send(bot.helpEmbed);
+		const embed = bot.helpEmbed;
+		embed.setAuthor(`Help Menu`, message.author.displayAvatarURL({ dynamic: true }));
+		embed.setTimestamp();
+		message.channel.send(embed);
 	}
 }
