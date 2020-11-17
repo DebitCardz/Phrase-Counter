@@ -6,7 +6,7 @@ import { Gamer } from "../../types/user";
 
 export default class BalanceCommand extends BotCommand {
 	constructor() {
-		super("balance", "Get the amount of money you have", { aliases: ["bal", "money", "cash"] });
+		super("balance", "Get the amount of money you have.", { aliases: ["bal", "money", "cash"], category: "Economy" });
 	}
 
 	async execute(message: Message, args: string[], db: Connection) : Promise<void> {

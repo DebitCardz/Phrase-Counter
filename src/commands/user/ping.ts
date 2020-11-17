@@ -3,7 +3,7 @@ import BotCommand from "../../lib/command";
 
 export default class PingCommand extends BotCommand {
 	constructor() {
-		super("ping", "Pong!");
+		super("ping", "Pong!", { category: "General" });
 	}
 
 	async execute(message: Message, args: string[]) {

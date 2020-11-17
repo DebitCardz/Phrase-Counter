@@ -10,7 +10,7 @@ export default class ShopCommand extends BotCommand {
 	private readonly numsToEmoji: string[];
 
 	constructor() {
-		super("shop", "Shop command", { aliases: ["store"], devcommand: true });
+		super("shop", "Shop command.", { aliases: ["store"], devcommand: true, category: "Economy" });
 
 		this.shop = new Shop();
 		this.numsToEmoji = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '❌'];

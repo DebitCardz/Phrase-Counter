@@ -6,7 +6,7 @@ import { Gamer } from "../../types/user";
 
 export default class SetCashCommand extends BotCommand {
 	constructor() {
-		super("setcash", "Admin command used to set a user's cash.");
+		super("setcash", "Admin command used to set a user's cash.", { category: "Admin" });
 	}
 
 	async execute(message: Message, args: string[], db: Connection) : Promise<void> {
