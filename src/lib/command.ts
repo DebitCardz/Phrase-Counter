@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { Connection } from "mongoose";
 import CommandOptions from "../types/commandoptions";
+import { Bot } from "./bot";
 
 export default abstract class BotCommand {
 	
@@ -20,7 +20,7 @@ export default abstract class BotCommand {
 	 * @param args 
 	 * @param db 
 	 */
-	abstract async execute(message: Message, args: string[], db?: Connection) : Promise<void>;
+	abstract async execute(bot: Bot, message: Message, args: string[]) : Promise<void>;
 
 	get name() : string {
 		return this._name;

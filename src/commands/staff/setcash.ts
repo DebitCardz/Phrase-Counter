@@ -1,6 +1,6 @@
 import { getModelForClass } from "@typegoose/typegoose";
 import { Message, MessageEmbed, User } from "discord.js";
-import { Connection } from "mongoose";
+import { Bot } from "../../lib/bot";
 import BotCommand from "../../lib/command";
 import { Gamer } from "../../types/user";
 
@@ -9,7 +9,7 @@ export default class SetCashCommand extends BotCommand {
 		super("setcash", "Admin command used to set a user's cash.", { category: "Admin" });
 	}
 
-	async execute(message: Message, args: string[], db: Connection) : Promise<void> {
+	async execute(bot: Bot, message: Message, args: string[]) : Promise<void> {
 
 		if(!message.member?.hasPermission(["ADMINISTRATOR"])) return;
 
@@ -30,7 +30,7 @@ export default class SetCashCommand extends BotCommand {
 			return;
 		}
 
-		const model = getModelForClass(Gamer, { existingConnection: db });
+		const model = getModelForClass(Gamer, { existingConnection: bot.db });
 		const existingUser = await model.findOne({ user_id: user.id });
 
 		if(existingUser) {

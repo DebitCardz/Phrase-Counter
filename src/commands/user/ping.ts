@@ -1,4 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
+import { Bot } from "../../lib/bot";
 import BotCommand from "../../lib/command";
 
 export default class PingCommand extends BotCommand {
@@ -6,7 +7,7 @@ export default class PingCommand extends BotCommand {
 		super("ping", "Pong!", { category: "General" });
 	}
 
-	async execute(message: Message, args: string[]) {
+	async execute(bot: Bot, message: Message, args: string[]) {
 		// Pong!
 		message.channel.send(this.pingEmbed(message.client.ws.ping));
 	}

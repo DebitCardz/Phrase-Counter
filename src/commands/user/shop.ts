@@ -1,22 +1,22 @@
 import { Message, MessageEmbed, User } from "discord.js";
-import { Connection } from "mongoose";
+import { Bot } from "../../lib/bot";
 import BotCommand from "../../lib/command";
 import { Shop } from "../../lib/shop";
 import ShopItem from "../../types/shopitem";
 
 export default class ShopCommand extends BotCommand {
 	
-	private readonly shop: Shop;
+	private shop: Shop;
 	private readonly numsToEmoji: string[];
 
-	constructor() {
+	constructor(bot: Bot) {
 		super("shop", "Shop command.", { aliases: ["store"], devcommand: true, category: "Economy" });
 
-		this.shop = new Shop();
+		this.shop = new Shop(bot.config.shop);
 		this.numsToEmoji = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '❌'];
 	}
 
-	async execute(message: Message, args: string[], db: Connection) {
+	async execute(bot: Bot, message: Message, args: string[]) {
 		this.displayShopEmbed(message.author, 1, message);
 	}
 
@@ -27,7 +27,7 @@ export default class ShopCommand extends BotCommand {
 	 * @param message 
 	 */
 	async displayShopEmbed(user: User, page: number, message: Message) {
-		let items: ShopItem[] = this.shop.getCatalogPage(page-1)
+		let items: ShopItem[] = this.shop.getCatalogPage(page)
 
 		const embed = new MessageEmbed();
 		embed.setAuthor(`Shop - Page: ${page}.`, user.displayAvatarURL({ dynamic: true }));

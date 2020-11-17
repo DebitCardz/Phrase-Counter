@@ -9,7 +9,7 @@ import { Config } from "./types/config";
 	const configFile = await fs.promises.readFile("./config.json");
 	const config = JSON.parse(configFile.toString()) as Config; 
 
-	bot = new Bot({}, config);
+	const bot = new Bot({}, config);
 
 	bot.once("ready", () => {
 		bot.user!.setActivity(config.bot.status.activity, { type: config.bot.status.type });
@@ -19,6 +19,3 @@ import { Config } from "./types/config";
 
 	bot.login(process.env.TOKEN);
 })();
-
-
-export let bot: Bot;

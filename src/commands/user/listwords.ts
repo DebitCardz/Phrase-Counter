@@ -1,7 +1,7 @@
 // import { getModelForClass } from "@typegoose/typegoose";
 import { getModelForClass } from "@typegoose/typegoose";
 import { Message, MessageEmbed, User } from "discord.js";
-import { Connection } from "mongoose";
+import { Bot } from "../../lib/bot";
 import BotCommand from "../../lib/command";
 import { Gamer } from "../../types/user";
 
@@ -10,7 +10,7 @@ export default class ListWordsCommand extends BotCommand {
 		super("listwords", "List all the words you have said and the amount.", { aliases: ["lw", "wordlist", "lws"], category: "General" });
 	}
 
-	async execute(message: Message, args: string[], db: Connection) {
+	async execute(bot: Bot, message: Message, args: string[]) {
 
 		let page;
 		let user;
@@ -40,7 +40,7 @@ export default class ListWordsCommand extends BotCommand {
 			}
 		}	
 
-		const model = getModelForClass(Gamer, { existingConnection: db });
+		const model = getModelForClass(Gamer, { existingConnection: bot.db });
 
 		// Should only be set in the case of which .lw <@mention> is done.
 		let existingUser;

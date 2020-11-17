@@ -1,15 +1,11 @@
 import ShopItem from "../types/shopitem";
 
-const config = require("../../config.json");
-
 export class Shop {
 
-	// double the fun.
-	public items: ShopItem[][] = [];
+	public items: {[key: string]: ShopItem[]};
 
-	constructor() {
-		for(const pageIndex in config.shop)  
-			this.items.push(config.shop[pageIndex]);
+	constructor(pages: {[key: string]: ShopItem[]}) {
+		this.items = pages;
 	}
 
 	/**
