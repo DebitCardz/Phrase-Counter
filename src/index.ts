@@ -1,15 +1,24 @@
 import dotenv from "dotenv";
+import fs from "fs";
 import { Bot } from "./lib/bot";
-const config = require('../config.json');
+import { Config } from "./types/config";
 
-dotenv.config();
+(async () => {
+	dotenv.config();
 
-export const bot: Bot = new Bot();
+	const configFile = await fs.promises.readFile("./config.json");
+	const config = JSON.parse(configFile.toString()) as Config; 
 
-bot.once('ready', () => {
-	bot.user?.setActivity(config.bot.status.activity, { type: config.bot.status.type.toUpperCase() });
+	bot = new Bot({}, config);
 
-	console.log(`Logged into ${bot.user?.username}.`);
-});
+	bot.once("ready", () => {
+		bot.user!.setActivity(config.bot.status.activity, { type: config.bot.status.type });
 
-bot.login(process.env.TOKEN);
+		console.log(`Logged into ${bot.user?.username}.`);
+	});
+
+	bot.login(process.env.TOKEN);
+})();
+
+
+export let bot: Bot;
