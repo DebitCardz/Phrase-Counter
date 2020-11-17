@@ -7,7 +7,7 @@ import { Gamer } from "../../types/user";
 
 export default class ListWordsCommand extends BotCommand {
 	constructor() {
-		super("listwords", "List all the words you have said and the amount", { aliases: ["lw", "wordlist", "lws"] });
+		super("listwords", "List all the words you have said and the amount.", { aliases: ["lw", "wordlist", "lws"], category: "General" });
 	}
 
 	async execute(message: Message, args: string[], db: Connection) {
